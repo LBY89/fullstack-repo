@@ -1,0 +1,49 @@
+POST http://localhost:3003/api/login
+Content-Type: application/json
+
+{
+    "username": "root",
+    "password": "salainen"
+}
+
+###
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYyMzRjZTE0YzY1NGEzMTJmODU2NGZhMyIsImlhdCI6MTY0Nzc2MzgzOSwiZXhwIjoxNjQ3NzY3NDM5fQ.wBPxL23OBLnLEKh8jlzCst3agKDiSc8hKUk_Od5L7nk
+
+{
+    "title": "root's test blog creation using token-based Authorization",
+    "url": "www.bbbbbbb.fi",
+    "likes": 123234,
+    "author": "rooster"
+}
+
+###
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+    "username": "lby",
+    "password": "mima"
+}
+
+###
+POST http://localhost:3003/api/login
+Content-Type: application/json
+
+{
+    "username": "lby",
+    "password": "mima"
+}
+
+###
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImxieSIsImlkIjoiNjIzNzFmNGRkN2I1MGE4NzM4Y2ViYTIzIiwiaWF0IjoxNjQ3Nzc5NzQwLCJleHAiOjE2NDc3ODMzNDB9.Wa2d8XMZ1BsMQSAgLhaNNIe3nbqt8L8GzrsGgijGaYg
+
+{
+    "title": "lby blog 2",
+    "url": "www.222222.fi",
+    "likes": 34,
+    "author": "rool"
+}
