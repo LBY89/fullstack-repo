@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Statistics from './Statistics'
+
 const Button = (props) => (
   <button onClick={props.handleClick}>
     {props.text}
@@ -12,16 +13,16 @@ const App = () => {
   const [bad, setBad] = useState(0) 
   const [allClicks, setAll] = useState([])
   const setToGood = newValue => {
-    setGood(newValue)
+    setGood(good+1)
     setAll(allClicks.concat('G'))
   }
   const setToNeutral = newValue => {
-    setNeutral(newValue)
-    setAll(allClicks.concat("N"))
+    setNeutral(neutral+1)
+    setAll(allClicks.concat('N'))
   }
   const setToBad = newValue => {
-    setBad(newValue)
-    setAll(allClicks.concat("B"))
+    setBad(bad+1)
+    setAll(allClicks.concat('B'))
   }
   return (
     <div>
@@ -30,7 +31,7 @@ const App = () => {
       <Button handleClick={() =>setToNeutral(neutral + 1)}text="neutral" />
       <Button handleClick={() =>setToBad(bad + 1)}text="bad"/>
       <h2>staticstics</h2>
-      <Statistics allClicks={allClicks}/>
+      <Statistics allClicks={allClicks} setAll = {setAll} good = {good} neutral={neutral} bad={bad}/>
     </div>
   )
 }
