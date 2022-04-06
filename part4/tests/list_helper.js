@@ -44,19 +44,25 @@ const totalLikes = (blogs) => {
     }
     return blogs.length === 1
         ? blogs[0].likes
-        : blogs.reduce(reducer, 0) 
-}   
+        : blogs.reduce(reducer, 0)
+}
 
 const favoriteBlog = (blogs) => {
     const favblog = blogs.reduce((max, blog) => max.likes > blog.likes ? max : blog)
+    console.log('favblog',favblog)
     const picked = (({ title, author, likes }) => ({ title, author, likes }))(favblog)
+    console.log('picked????', picked)
     return picked
-    console.log('picked', picked)
 }
+//to get only partial of favoriteBlog obj
+// const object = { a: 5, b: 6, c: 7  };
+// const picked = (({ a, c }) => ({ a, c }))(object);
+
+// console.log(picked); // { a: 5, c: 7 }
 
 const mostBlogs = (blogs) => {
     const authoObj = _.groupBy(blogs, 'author')
-    const maxKey = Object.keys(authoObj).reduce((a, b) => authoObj[a] > authoObj[b] ? a : b);
+    const maxKey = Object.keys(authoObj).reduce((a, b) => authoObj[a] > authoObj[b] ? a : b)
     console.log('maxKey', maxKey)
     return (
         {
@@ -68,12 +74,12 @@ const mostBlogs = (blogs) => {
 
 const mostLikes = (blogs) => {
     const authoObj = _.groupBy(blogs, 'author')
-    
+
     Object.keys(authoObj).forEach(key => {
         authoObj[key] = totalLikes(authoObj[key])
     })
     console.log('authoObj',authoObj)
-    const maxKey = Object.keys(authoObj).reduce((a, b) => authoObj[a] > authoObj[b] ? a : b);
+    const maxKey = Object.keys(authoObj).reduce((a, b) => authoObj[a] > authoObj[b] ? a : b)
     return (
         {
             author: maxKey,

@@ -49,7 +49,7 @@ describe('initial state contain blogs', () => {
     test('unique identifier of the blog post is id', async () => {
         const response = await api.get('/api/blogs')
         const blogs = response.body
-        console.log('blogs', blogs)
+        //console.log('blogs', blogs)
         expect(blogs[0].id).toBeDefined()
     })
 }) 
@@ -181,7 +181,7 @@ describe('update of a blog', () => {
         await api
             .put(`/api/blogs/${blogsAtStart[0].id}`)
             .send(newBlog)
-            .expect(202)
+            .expect(200)
 
         const blogsAtEnd = await helper.blogsInDb()
         expect(blogsAtEnd[0].likes).toEqual(66)
