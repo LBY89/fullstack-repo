@@ -71,4 +71,17 @@ blogsRouter.put('/:id', async (request, response) => {
   response.json(newBlog)
 })
 
+blogsRouter.post('/:id/comments', (request, response, next) => {
+  const body = request.body
+  console.log('reqeustbody', body)
+  const comment = new Comment({
+    content:body.content
+  })
+  comment
+  .save()
+  .then((newComment) => response.status(201).json(newComment))
+  .catch((error) => next(error))
+  
+})
+
 module.exports = blogsRouter
