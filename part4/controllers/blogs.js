@@ -1,6 +1,7 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const Comment = require('../models/comment')
 const jwt = require('jsonwebtoken')
 //const middleware = require('../utils/middleware')
 
@@ -11,14 +12,7 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs.map(blog => blog.toJSON()))
 })
 
-blogsRouter.get('/:id', async (request, response) => {
-  const blog = await Blog.findById(request.params.id)
-  if (blog) {
-    response.json(blog.toJSON())
-  } else {
-    response.status(404).end()
-  }
-})
+
 
 blogsRouter.post('/', async(request, response) => {
   const body = request.body
@@ -62,12 +56,16 @@ blogsRouter.delete('/:id', async (request, response) => {
 
 blogsRouter.put('/:id', async (request, response) => {
   const body = request.body
-
+  console.log('reqeustbody', body)
+  //const user = await Blog.findOne(blog.user)
   const blog = {
     likes: body.likes
   }
-
-  const newBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
+  //await blog.populate('user')
+  const newBlog = await Blog
+  .findByIdAndUpdate(request.params.id, blog, { new: true })
+  .populate('user',{ username: 1, name: 1 })
+  
   response.json(newBlog)
 })
 
@@ -75,12 +73,28 @@ blogsRouter.post('/:id/comments', (request, response, next) => {
   const body = request.body
   console.log('reqeustbody', body)
   const comment = new Comment({
-    content:body.content
+    content:body.content,
+    blogId: body.blogId
   })
   comment
   .save()
   .then((newComment) => response.status(201).json(newComment))
   .catch((error) => next(error))
+  
+})
+
+
+blogsRouter.get('/:id/comments', async (request, response) => {
+  // console.log('request.body',request.body)
+  // console.log('response.data', response.data)
+  const comments = await Comment.find({})
+  console.log('comments from get', comments)
+  if (comments) {
+    response.json(comments)
+  } else {
+    response.status(404).end()
+  }
+  
   
 })
 
