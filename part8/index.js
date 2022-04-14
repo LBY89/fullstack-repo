@@ -1,4 +1,5 @@
 const { ApolloServer, gql } = require('apollo-server')
+const { v1: uuid } = require('uuid')
 
 let authors = [
   {
@@ -92,7 +93,7 @@ const typeDefs = gql`
   type Query {
       bookCount: Int
       authorCount: Int
-      allBooks: [Book!]!
+      allBooks(author: String, genre: String): [Book!]!
       allAuthors: [Author!]
   }
 
@@ -108,10 +109,16 @@ const typeDefs = gql`
     name: String!
     id: String
     born: Int
-    bookCount: bookCount
-  }
-  type bookCount {
     bookCount: Int!
+  }
+
+  type Mutation {
+    addBook(
+      title: String!
+      author: String!
+      published: Int!
+      genres: [String!]!
+    ): Book
   }
   
 `
@@ -120,31 +127,101 @@ const resolvers = {
   Query: {
     bookCount: () => books.length,
     authorCount: () => authors.length,
-    allBooks: () => books,
+    allBooks: (root, args) => {
+      console.log('args', args);
+      
+      if (args.author && !args.genre) {
+
+      const filteredBooks = books.filter(book => book.author === args.author)
+      //console.log('filterBooks', filteredBooks);
+
+      const result = []
+
+      filteredBooks.forEach( book =>{
+        const titleObj = {title: book.title}
+        result.push(titleObj)}
+        
+      )
+      //console.log('result', result);
+      
+      return result
+
+      }
+      
+      if (args.genre && !args.author) {
+        const filteredBooks = books.filter(book => book.genres.includes(args.genre))
+        console.log('filteredBooks', filteredBooks);
+        const result = []
+        filteredBooks.forEach(
+          book => {
+            const genreObj = {author: book.author, title: book.title}
+            result.push(genreObj)
+          }
+        )
+        return result
+      }
+
+      if (args.author && args.genre) {
+        const filteredBooks = books.filter(book => book.genres.includes(args.genre) && book.author === args.author )
+        const result = []
+        filteredBooks.forEach(
+          book => {
+            const genreObj = {author: book.author, title: book.title}
+            result.push(genreObj)
+          }
+        )
+        return result
+      }
+
+    },
     allAuthors: (root, args) => {
-      console.log('args',args);
+      //console.log('args',args);
       
       const result = []
       authors.forEach(author => {
-
-        const authorBooksCount = args.booCount(books.filter(book => book.author !== author.name))
-        const newAuthor = {name: author.name, bookCount: authorBooksCount}
-        return result.concat(newAuthor)
+        
+        const authorBooksCount = books.filter(book => book.author !== author.name).length
+        const newAuthor = {"name": author.name, "bookCount": authorBooksCount}
+        //console.log("newAuthor", newAuthor);
+        
+        result.push(newAuthor)
 
       })
+
+      return result
   
     }
 
+  },
+  // const object = { a: 5, b: 6, c: 7  };
+  // const picked = (({ a, c }) => ({ a, c }))(object);
+  
+  // console.log(picked); // { a: 5, c: 7 }
+  Mutation: {
+    addBook: (root, args) => {
+      const book = { ...args, id: uuid() }
+      console.log('book', book);
+      const names = []
+      authors.forEach(
+        author =>{
+          names.push(author.name)
+        }
+      )
+
+      if (!names.includes(book.author)) {
+        const authorObj = {name: book.author, id: uuid(), born: null}
+        return authors.push(authorObj)
+      }
+      
+      books = books.concat(book)
+      console.log('books', books);
+      console.log('authors', authors);
+      
+      
+      //const picked = (({title, author}) => ({title, author}))(book)
+      return book
     }
-
-  // Author: {
-  //   bookCount:(root) => {
-  //     return {
-  //       bookCount: root.bookCount
-  //     }
-  //   }
-  // }
-
+  }
 
 }
 
