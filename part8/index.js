@@ -98,18 +98,18 @@ const typeDefs = gql`
   }
 
   type Book {
-    title: String!
-    author: String!
-    published: String!
+    title: String
+    author: String
+    published: Int
     id: ID
-    genres: [String!]!
+    genres: [String!]
   }
 
   type Author {
     name: String!
     id: String
     born: Int
-    bookCount: Int!
+    bookCount: Int
   }
 
   type Mutation {
@@ -134,6 +134,9 @@ const resolvers = {
     authorCount: () => authors.length,
     allBooks: (root, args) => {
       console.log('args', args);
+      if (!args.author && !args.genre) {
+        return books
+      }
       
       if (args.author && !args.genre) {
 
@@ -185,8 +188,8 @@ const resolvers = {
       const result = []
       authors.forEach(author => {
         
-        const authorBooksCount = books.filter(book => book.author !== author.name).length
-        const newAuthor = {"name": author.name, "bookCount": authorBooksCount}
+        const authorBooksCount = books.filter(book => book.author === author.name).length
+        const newAuthor = {"name": author.name, "born": author.born, "bookCount": authorBooksCount}
         //console.log("newAuthor", newAuthor);
         
         result.push(newAuthor)
@@ -205,6 +208,7 @@ const resolvers = {
   Mutation: {
     addBook: (root, args) => {
       const book = { ...args, id: uuid() }
+      books = books.concat(book)
       console.log('book', book);
       const names = []
       authors.forEach(
@@ -217,14 +221,13 @@ const resolvers = {
         const authorObj = {name: book.author, id: uuid(), born: null}
         return authors.push(authorObj)
       }
+      // !!!!!!return will cut execution no matter where, be super caution. 
       
-      books = books.concat(book)
-      console.log('books', books);
-      console.log('authors', authors);
+
+      console.log('books after addbook', books);
       
-      
-      //const picked = (({title, author}) => ({title, author}))(book)
       return book
+
     },
     editAuthor: (root, args) => {
       const author = authors.find(p => p.name === args.name)
