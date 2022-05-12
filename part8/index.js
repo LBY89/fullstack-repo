@@ -26,7 +26,8 @@ mongoose
     console.log('error connection to MongoDB:', error.message)
   })
 
-  
+//mongoose.set('debug', true)
+
 const start = async () => {
   const app = express()
   const httpServer = http.createServer(app)
@@ -51,7 +52,9 @@ const start = async () => {
       const auth = req ? req.headers.authorization : null
       if (auth && auth.toLowerCase().startsWith('bearer ')) {
         const decodedToken = jwt.verify(auth.substring(7), config.SECRET)
-        const currentUser = await User.findById(decodedToken.id)
+        const currentUser = await User.findById(decodedToken.id).populate(
+          'favoriteGenre'
+        )
         return { currentUser }
       }
     },

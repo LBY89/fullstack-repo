@@ -1,3 +1,7 @@
+const jwt = require('jsonwebtoken')
+const config = require('./config')
+const { PubSub } = require('graphql-subscriptions')
+const pubsub = new PubSub()
 const Book = require('./models/book')
 const Author = require('./models/author')
 const User = require('./models/user')
@@ -5,12 +9,6 @@ const {
     UserInputError,
     AuthenticationError,
   } = require('apollo-server')
-
-const jwt = require('jsonwebtoken')
-const config = require('./config')
-
-const { PubSub } = require('graphql-subscriptions')
-const pubsub = new PubSub()
 
 const resolvers = {
     Query: {
@@ -32,30 +30,19 @@ const resolvers = {
         }
         return await Book.find({}).populate("author")
         //when query remember to break 'author'
-        // allBooks { 
-        //   title
-        //   author{
-        //     name
-        //     born
-        //   }
-        //   published
-        //   genres
-        // }
-  
       },
   
       allAuthors: async (root, args) => {
+        console.log('allAuthors resolver')// 
         const authors = await Author.find({})
         const books = await Book.find({}).populate("author")
-        console.log('author', authors)
-        console.log('books', books)
-        
         
         const result = []
   
         authors.forEach(author => {
   
           const authorBooksCount = books.filter(book => book.author.name === author.name).length
+          //construct a new Author obj which saves populate issue. Maybe also save from n+1 issue
           const newAuthor = {"name": author.name, "born": author.born, "bookCount": authorBooksCount}
           //console.log("newAuthor", newAuthor);
   
@@ -72,8 +59,9 @@ const resolvers = {
     },
   
     Mutation: {
+
       addBook: async (root, args, context) => {
-        console.log('context', context);
+        //console.log('context', context);
         
         const bookAuthor = await Author.findOne({name: args.author})
         const currentUser = context.currentUser
@@ -103,6 +91,10 @@ const resolvers = {
             });
     
           }
+
+          console.log('befr book');
+          pubsub.publish('BOOK_ADDED', {bookAdded: book})
+          console.log('afterbook', book);
           
           return book
   
@@ -120,17 +112,15 @@ const resolvers = {
   
         }
 
+        console.log('befr book');
         pubsub.publish('BOOK_ADDED', {bookAdded: book})
         console.log('book', book);
         
         return book
+
         
       },
   
-      // editAuthor(
-      //   name: String!
-      //   setBornTo: Int!
-      // ): Author
   
       editAuthor: async (root, args, context) => {
         
@@ -138,7 +128,7 @@ const resolvers = {
         author.born = args.setBornTo
   
         const currentUser = context.currentUser
-        console.log('currentUser', currentUser)
+        //console.log('currentUser', currentUser)
   
         if (!currentUser) {
           throw new AuthenticationError("not authenticated")
@@ -168,9 +158,9 @@ const resolvers = {
         })
       },
       login: async(root, args) => {
-        console.log('login args', args);
+        //console.log('login args', args);
         const user = await User.findOne({username: args.username})
-        console.log('login useraaaa', user)
+        //console.log('login useraaaa', user)
         if (!user||args.password !=='liubaoying') {
           throw new UserInputError("wrong credentials")
         }
